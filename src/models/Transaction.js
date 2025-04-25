@@ -1,5 +1,6 @@
 import mongoose from 'mongoose';
 
+// Check if the model is already defined to avoid the "Cannot overwrite model once compiled" error
 const TransactionSchema = new mongoose.Schema({
   amount: {
     type: Number,
@@ -15,9 +16,18 @@ const TransactionSchema = new mongoose.Schema({
     type: String,
     required: [true, 'Description is required'],
     trim: true
+  },
+  category: {
+    type: String,
+    required: [true, 'Category is required'],
+    enum: ['Food', 'Transportation', 'Housing', 'Utilities', 'Entertainment', 'Healthcare', 'Shopping', 'Education', 'Savings', 'Other'],
+    default: 'Other'
   }
 }, {
   timestamps: true
 });
 
-export default mongoose.models.Transaction || mongoose.model('Transaction', TransactionSchema); 
+// Use a more reliable way to check if the model exists
+const Transaction = mongoose.models.Transaction || mongoose.model('Transaction', TransactionSchema);
+
+export default Transaction; 

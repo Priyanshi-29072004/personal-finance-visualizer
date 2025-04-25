@@ -16,6 +16,42 @@ export async function GET(request, { params }) {
   }
 }
 
+// UPDATE transaction
+export async function PUT(request, { params }) {
+  try {
+    await connectDB();
+    const data = await request.json();
+    
+    // Validate the data
+    if (!data.amount || !data.date || !data.description || !data.category) {
+      return NextResponse.json({ error: 'All fields are required' }, { status: 400 });
+    }
+
+    const amount = parseFloat(data.amount);
+    if (isNaN(amount) || amount <= 0) {
+      return NextResponse.json({ error: 'Amount must be a positive number' }, { status: 400 });
+    }
+
+    const updatedTransaction = await Transaction.findByIdAndUpdate(
+      params.id,
+      {
+        ...data,
+        amount,
+        date: new Date(data.date)
+      },
+      { new: true, runValidators: true }
+    );
+
+    if (!updatedTransaction) {
+      return NextResponse.json({ error: 'Transaction not found' }, { status: 404 });
+    }
+
+    return NextResponse.json(updatedTransaction);
+  } catch (error) {
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+}
+
 // DELETE transaction
 export async function DELETE(request, { params }) {
   try {
