@@ -23,8 +23,11 @@ async function connectDB() {
     const opts = {
       bufferCommands: false,
       maxPoolSize: 10,
-      serverSelectionTimeoutMS: 5000,
+      serverSelectionTimeoutMS: 10000,
       socketTimeoutMS: 45000,
+      connectTimeoutMS: 10000,
+      retryWrites: true,
+      retryReads: true,
     };
 
     try {
@@ -70,10 +73,24 @@ mongoose.connection.on('error', (err) => {
 
 mongoose.connection.on('disconnected', () => {
   console.log('MongoDB disconnected');
+  cached.conn = null;
+  cached.promise = null;
 });
 
 mongoose.connection.on('connected', () => {
   console.log('MongoDB connected');
+});
+
+// Handle process termination
+process.on('SIGINT', async () => {
+  try {
+    await mongoose.connection.close();
+    console.log('MongoDB connection closed through app termination');
+    process.exit(0);
+  } catch (err) {
+    console.error('Error during MongoDB connection closure:', err);
+    process.exit(1);
+  }
 });
 
 export default connectDB; 

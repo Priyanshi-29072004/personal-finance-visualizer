@@ -14,8 +14,15 @@ export async function GET() {
     return NextResponse.json(transactions);
   } catch (error) {
     console.error('Error in GET /api/transactions:', error);
+    // Check if it's a MongoDB connection error
+    if (error.name === 'MongoServerError' || error.name === 'MongoNetworkError') {
+      return NextResponse.json(
+        { error: 'Database connection error. Please try again later.' },
+        { status: 503 }
+      );
+    }
     return NextResponse.json(
-      { error: error.message, details: error.stack },
+      { error: 'Internal server error. Please try again later.' },
       { status: 500 }
     );
   }
@@ -45,8 +52,22 @@ export async function POST(request) {
     return NextResponse.json(transaction, { status: 201 });
   } catch (error) {
     console.error('Error in POST /api/transactions:', error);
+    // Check if it's a MongoDB connection error
+    if (error.name === 'MongoServerError' || error.name === 'MongoNetworkError') {
+      return NextResponse.json(
+        { error: 'Database connection error. Please try again later.' },
+        { status: 503 }
+      );
+    }
+    // Check if it's a validation error
+    if (error.name === 'ValidationError') {
+      return NextResponse.json(
+        { error: error.message },
+        { status: 400 }
+      );
+    }
     return NextResponse.json(
-      { error: error.message, details: error.stack },
+      { error: 'Internal server error. Please try again later.' },
       { status: 500 }
     );
   }
