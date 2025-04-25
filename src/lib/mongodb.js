@@ -1,7 +1,7 @@
 import mongoose from 'mongoose';
 
-// Get the MongoDB URI from environment variable or use a default for development
-const MONGODB_URI = process.env.MONGODB_URI || 'mongodb+srv://vaghasiapriyanshi2907:priyanshi@cluster0.zzzrwp4.mongodb.net/';
+// Get the MongoDB URI from environment variable
+const MONGODB_URI = process.env.MONGODB_URI;
 
 if (!MONGODB_URI) {
   throw new Error('Please define the MONGODB_URI environment variable inside .env');
@@ -28,23 +28,14 @@ async function connectDB() {
       connectTimeoutMS: 10000,
       retryWrites: true,
       retryReads: true,
+      dbName: 'personal-finance', // Explicitly set the database name
     };
 
     try {
       console.log('Attempting to connect to MongoDB...');
+      console.log('MongoDB URI exists:', !!MONGODB_URI);
       
-      // Encode the password part of the URI to handle special characters
-      const encodedUri = MONGODB_URI.replace(
-        /mongodb\+srv:\/\/([^:]+):([^@]+)@/,
-        (match, username, password) => {
-          const encodedPassword = encodeURIComponent(password);
-          return `mongodb+srv://${username}:${encodedPassword}@`;
-        }
-      );
-      
-      console.log('Using encoded MongoDB URI');
-      
-      cached.promise = mongoose.connect(encodedUri, opts).then((mongoose) => {
+      cached.promise = mongoose.connect(MONGODB_URI, opts).then((mongoose) => {
         console.log('MongoDB connected successfully');
         return mongoose;
       });

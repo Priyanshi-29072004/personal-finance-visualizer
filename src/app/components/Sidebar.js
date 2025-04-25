@@ -5,7 +5,8 @@ import { usePathname } from 'next/navigation';
 import { 
   LayoutDashboard, 
   Receipt, 
-  Menu
+  Menu,
+  Wallet
 } from 'lucide-react';
 import { useState } from 'react';
 
@@ -23,6 +24,11 @@ export default function Sidebar() {
       path: '/transactions',
       name: 'Transactions',
       icon: Receipt
+    },
+    {
+      path: '/budget',
+      name: 'Budget',
+      icon: Wallet
     }
   ];
 
